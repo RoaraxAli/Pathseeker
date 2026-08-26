@@ -25,14 +25,43 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Ensure database is connected before handling API requests
+// Simple liveness check — no DB involved.
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
+// Diagnostic route to check DB connection status and env var presence
+app.get('/api/db-health', async (req, res) => {
+  try {
+    const hasMongoUri = Boolean(process.env.MONGODB_URI);
+    const hasJwtSecret = Boolean(process.env.JWT_SECRET);
+    await connectDB();
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      env: { MONGODB_URI: hasMongoUri, JWT_SECRET: hasJwtSecret },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      database: 'disconnected',
+      message: err.message,
+      env: {
+        MONGODB_URI: Boolean(process.env.MONGODB_URI),
+        JWT_SECRET: Boolean(process.env.JWT_SECRET),
+      },
+    });
+  }
+});
+
+// Ensure database is connected before handling all other API requests
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (err) {
     console.error('[server] Database connection error:', err.message);
-    res.status(500).json({ error: 'Database connection failed' });
+    res.status(500).json({ error: `Database connection error: ${err.message}` });
   }
 });
 
@@ -57,11 +86,6 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
-// Simple liveness check — no DB involved.
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 // End-to-end test route: writes a Ping doc to MongoDB and reads back the
 // total count, proving Express <-> MongoDB <-> React all work together.
