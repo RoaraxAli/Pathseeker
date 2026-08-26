@@ -1,0 +1,14 @@
+{
+  "name": "pathseeker-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"server,client\" -c \"blue,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "start": "npm run start --prefix server",
+    "build": "npm run build --prefix client",
+    "seed:all": "npm run seed:admin --prefix server && npm run seed:careers --prefix server && npm run seed:quiz --prefix server && npm run seed:media --prefix server && npm run seed:resources --prefix server && npm run seed:stories --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

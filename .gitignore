@@ -1,0 +1,11 @@
+# Root gitignore
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+dist/
+dist-ssr/
+client/dist/
+server/uploads/
