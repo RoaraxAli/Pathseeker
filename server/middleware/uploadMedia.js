@@ -2,8 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads', 'media');
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const os = require('os');
+
+const UPLOAD_DIR = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'uploads', 'media')
+  : path.join(__dirname, '..', 'uploads', 'media');
+
+try {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+} catch (err) {
+  // Read-only filesystem in serverless environments
+}
 
 const ALLOWED_MIME_TYPES = new Set([
   'video/mp4',

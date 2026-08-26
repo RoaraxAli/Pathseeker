@@ -1,6 +1,7 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config();
 
-const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
@@ -111,7 +112,7 @@ async function start() {
   });
 }
 
-if (!process.env.VERCEL) {
+if (require.main === module) {
   start();
 }
 
