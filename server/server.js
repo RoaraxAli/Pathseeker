@@ -25,6 +25,17 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Ensure database is connected before handling API requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('[server] Database connection error:', err.message);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
+
 // Uploaded media files (video/audio) are meant to be publicly playable,
 // unlike resumes which require an authenticated download route.
 app.use('/uploads/media', express.static(path.join(__dirname, 'uploads', 'media')));
@@ -76,4 +87,8 @@ async function start() {
   });
 }
 
-start();
+if (!process.env.VERCEL) {
+  start();
+}
+
+module.exports = app;
