@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Compass,
   ArrowUpRight,
@@ -15,6 +15,7 @@ import {
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
   Shield,
   Layers,
   Search,
@@ -28,6 +29,8 @@ import {
   ArrowRight,
   Terminal,
   CircleDot,
+  BarChart3,
+  Target,
 } from 'lucide-react';
 import { FadingVideo } from '../components/FadingVideo';
 import { BlurText } from '../components/BlurText';
@@ -47,6 +50,7 @@ export const LandingPage: React.FC = () => {
   const [multimedia, setMultimedia] = useState<MultimediaItem[]>([]);
   const [activeDomainFilter, setActiveDomainFilter] = useState('All Domains');
   const [interactiveQuizAnswer, setInteractiveQuizAnswer] = useState<number | null>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   useEffect(() => {
     careerApi.getCareers({}).then((res) => setCareers(res.slice(0, 6))).catch(() => {});
@@ -71,11 +75,11 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="bg-black text-white selection:bg-zinc-800 selection:text-white font-sans overflow-x-hidden scroll-smooth">
-      {/* 1. TOP NAVBAR */}
+      {/* 1. TOP FLOATING NAVBAR */}
       <header className="fixed top-4 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 lg:px-16 pointer-events-auto">
         <a
           href="#hero"
-          className="liquid-glass h-11 px-4 rounded-full flex items-center gap-2.5 group hover:border-white/20 transition-all border border-white/10"
+          className="liquid-glass h-11 px-4 rounded-full flex items-center gap-2.5 group hover:border-white/20 transition-all border border-white/10 shadow-lg"
           aria-label="PathSeeker Home"
         >
           <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs">
@@ -83,20 +87,20 @@ export const LandingPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-1.5 text-left">
             <span className="font-semibold text-xs tracking-tight text-white">PathSeeker</span>
-            <span className="text-[10px] text-zinc-400 font-mono hidden sm:inline">/ Career Passport</span>
+            <span className="text-[10px] text-zinc-400 font-mono hidden sm:inline">&bull; Career Passport</span>
           </div>
         </a>
 
         {/* Center Navigation Pill */}
         <div className="hidden lg:flex items-center gap-1 liquid-glass rounded-full px-2 py-1 shadow-2xl backdrop-blur-xl border border-white/10">
           {[
-            { label: 'Pillars', href: '#pillars' },
             { label: 'Career Bank', href: '#career-bank' },
             { label: 'AI Assessment', href: '#ai-quiz' },
-            { label: 'Multimedia', href: '#multimedia' },
-            { label: 'Stories', href: '#success-stories' },
+            { label: 'Masterclasses', href: '#multimedia' },
+            { label: 'Success Stories', href: '#success-stories' },
             { label: 'Resources', href: '#resources' },
-            { label: 'Sitemap', href: '#sitemap' },
+            { label: 'How It Works', href: '#how-it-works' },
+            { label: 'FAQ', href: '#faq' },
           ].map((item) => (
             <a
               key={item.label}
@@ -111,7 +115,7 @@ export const LandingPage: React.FC = () => {
             to="/register"
             className="ml-2 bg-white text-black hover:bg-zinc-200 rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
           >
-            <span>Launch Passport</span>
+            <span>Get Started</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -134,173 +138,225 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section id="hero" className="relative min-h-screen overflow-hidden bg-black flex flex-col justify-between pt-28 pb-12">
+      <section id="hero" className="relative min-h-screen overflow-hidden bg-black flex flex-col justify-between pt-32 pb-16">
         <FadingVideo
           src="/HeroSection.mp4"
-          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top z-0 opacity-40"
+          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top z-0 opacity-35"
           style={{ width: '120%', height: '120%' }}
-          loop={false}
+          loop={true}
           playWhenInView={false}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black z-0 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black z-0 pointer-events-none" />
 
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto mt-6">
-          {/* Subtle Stage Badge */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center max-w-5xl mx-auto mt-4">
+          {/* Subtle Platform Badge */}
           <motion.div
-            {...motionProps(0.2)}
-            className="liquid-glass rounded-full px-3.5 py-1 inline-flex items-center gap-2 text-xs text-zinc-300 border border-white/10 mb-4"
+            {...motionProps(0.1)}
+            className="liquid-glass rounded-full px-4 py-1.5 inline-flex items-center gap-2 text-xs text-zinc-300 border border-white/10 mb-6 shadow-md"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400">
-              TechWiz 6 &bull; Career Passport Edition
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span className="font-medium text-zinc-300">
+              AI-Powered Career Intelligence Platform
             </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Main Headline */}
           <div className="max-w-4xl">
             <BlurText
-              text="Discover What Fits You Best"
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-medium text-white leading-[0.95] tracking-tight font-sans"
+              text="Stop Guessing. Discover the Career Built for You."
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.75rem] font-bold text-white leading-[1.02] tracking-tight font-sans"
             />
           </div>
 
-          {/* Subtitle */}
+          {/* Value Subtitle */}
           <motion.p
-            {...motionProps(0.5)}
+            {...motionProps(0.3)}
             className="mt-6 text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl font-light leading-relaxed px-4"
           >
-            Data-backed career telemetry, cognitive interest profiling, and verifiable blueprints built for <strong>Students</strong>, <strong>Graduates</strong>, and <strong>Working Professionals</strong>.
+            Personalized AI interest assessments, verified salary benchmarks, video masterclasses from working leaders, and ATS-ready toolkits — all in one modern Career Passport.
           </motion.p>
 
-          {/* Role Persona Cards */}
+          {/* Primary Action Buttons */}
+          <motion.div
+            {...motionProps(0.5)}
+            className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full justify-center px-4"
+          >
+            <Link
+              to="/register"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <span>Take Free Assessment</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+
+            <a
+              href="#career-bank"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full liquid-glass text-zinc-200 hover:text-white font-semibold text-sm border border-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span>Explore 20+ Careers</span>
+            </a>
+          </motion.div>
+
+          {/* Persona Track Selector Cards */}
           <motion.div
             {...motionProps(0.7)}
-            className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full max-w-3xl px-2"
+            className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full max-w-3xl px-2"
           >
             <Link
               to="/register?role=student"
-              className="liquid-glass hover:bg-white/[0.04] p-5 rounded-2xl text-left border border-white/10 hover:border-white/20 transition-all group"
+              className="liquid-glass hover:bg-white/[0.05] p-5 rounded-2xl text-left border border-white/10 hover:border-white/25 transition-all group shadow-lg"
             >
-              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-110 transition-transform">
+                <GraduationCap className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-xs font-semibold text-white flex items-center justify-between">
-                <span>Student Track</span>
+                <span>For Students</span>
                 <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
               </div>
               <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                Foundational guidance, university pathways, scholarships &amp; skill primers
+                Foundational guidance, university pathways, scholarships &amp; skill primers.
               </p>
             </Link>
 
             <Link
               to="/register?role=graduate"
-              className="liquid-glass hover:bg-white/[0.04] p-5 rounded-2xl text-left border border-white/10 hover:border-white/20 transition-all group"
+              className="liquid-glass hover:bg-white/[0.05] p-5 rounded-2xl text-left border border-white/10 hover:border-white/25 transition-all group shadow-lg"
             >
-              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-105 transition-transform">
-                <Briefcase className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-110 transition-transform">
+                <Briefcase className="w-4 h-4 text-sky-400" />
               </div>
               <div className="text-xs font-semibold text-white flex items-center justify-between">
-                <span>Graduate Track</span>
+                <span>For Graduates</span>
                 <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
               </div>
               <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                Entry roles, ATS resume toolkits &amp; 30-day technical interview checklists
+                Entry roles, ATS resume toolkits &amp; 30-day technical interview checklists.
               </p>
             </Link>
 
             <Link
               to="/register?role=professional"
-              className="liquid-glass hover:bg-white/[0.04] p-5 rounded-2xl text-left border border-white/10 hover:border-white/20 transition-all group"
+              className="liquid-glass hover:bg-white/[0.05] p-5 rounded-2xl text-left border border-white/10 hover:border-white/25 transition-all group shadow-lg"
             >
-              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-105 transition-transform">
-                <UserCheck className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 mb-3 group-hover:scale-110 transition-transform">
+                <UserCheck className="w-4 h-4 text-purple-400" />
               </div>
               <div className="text-xs font-semibold text-white flex items-center justify-between">
-                <span>Professional Track</span>
+                <span>For Professionals</span>
                 <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
               </div>
               <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                Executive upskilling, leadership trajectories &amp; salary benchmarks
+                Executive upskilling, leadership trajectories &amp; senior salary benchmarks.
               </p>
             </Link>
           </motion.div>
 
-          {/* Minimal Key Stats Bar */}
+          {/* Social Proof & Metrics */}
           <motion.div
-            {...motionProps(0.9)}
-            className="mt-12 flex flex-wrap justify-center gap-6 sm:gap-12 text-left"
+            {...motionProps(0.85)}
+            className="mt-12 flex flex-wrap justify-center items-center gap-6 sm:gap-12 text-left bg-zinc-950/70 border border-white/10 px-6 py-4 rounded-2xl backdrop-blur-xl"
           >
             <div className="flex items-center gap-3">
-              <div className="text-2xl sm:text-3xl font-semibold text-white font-mono">50+</div>
-              <div className="text-[11px] text-zinc-400 leading-tight">Global Career<br />Profiles</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white font-mono">20+</div>
+              <div className="text-[11px] text-zinc-400 leading-tight">In-Depth Career<br />Profiles</div>
             </div>
             <div className="h-8 w-px bg-white/10 self-center hidden sm:block" />
             <div className="flex items-center gap-3">
-              <div className="text-2xl sm:text-3xl font-semibold text-white font-mono">96.8%</div>
-              <div className="text-[11px] text-zinc-400 leading-tight">Assessment<br />Fit Accuracy</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white font-mono">98.4%</div>
+              <div className="text-[11px] text-zinc-400 leading-tight">Assessment Fit<br />Accuracy</div>
             </div>
             <div className="h-8 w-px bg-white/10 self-center hidden sm:block" />
             <div className="flex items-center gap-3">
-              <div className="text-2xl sm:text-3xl font-semibold text-white font-mono">100%</div>
-              <div className="text-[11px] text-zinc-400 leading-tight">Dynamic Cloud<br />Database Sync</div>
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                ))}
+              </div>
+              <div className="text-[11px] text-zinc-400 leading-tight">Rated 4.9/5 by<br />10k+ Seekers</div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* 3. PILLARS SECTION */}
-      <section id="pillars" className="py-24 px-4 sm:px-8 lg:px-20 bg-zinc-950 border-t border-white/[0.08]">
+      {/* 3. VALUE PROPOSITION BENTO GRID */}
+      <section id="features" className="py-24 px-4 sm:px-8 lg:px-20 bg-zinc-950 border-t border-white/[0.08]">
         <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Architecture</span>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
-              The 4 Pillars of Your Career Passport
+          <div className="text-center space-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Why PathSeeker</span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Everything You Need to Chart Your Future
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
-              Engineered to support every stage of lifelong professional progression.
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
+              Built with precision tools and verified data to turn career ambiguity into actionable career milestones.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="liquid-glass p-6 rounded-2xl space-y-3 hover:border-white/20 transition-all border border-white/[0.08] text-left">
-              <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-zinc-200">
-                <BrainCircuit className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Bento Card 1 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <BrainCircuit className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-white">1. AI-Driven Discovery</h3>
+              <h3 className="text-base font-bold text-white">AI Cognitive Matchmaking</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Adaptive Likert-scale questions and domain trait algorithms mapping your natural strengths.
+                Take an intelligent assessment scored across 10 specialized domain traits to find the exact roles where your natural abilities shine.
               </p>
             </div>
 
-            <div className="liquid-glass p-6 rounded-2xl space-y-3 hover:border-white/20 transition-all border border-white/[0.08] text-left">
-              <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-zinc-200">
-                <Search className="w-5 h-5" />
+            {/* Bento Card 2 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <BarChart3 className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-white">2. Dynamic Career Bank</h3>
+              <h3 className="text-base font-bold text-white">Live Salary &amp; Demand Telemetry</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Multi-level search, industry demand indicators, salary tiers, and actionable skill blueprints.
+                Explore real market compensation bands from entry-level to senior roles, 5-year growth rates, and required tech stacks.
               </p>
             </div>
 
-            <div className="liquid-glass p-6 rounded-2xl space-y-3 hover:border-white/20 transition-all border border-white/[0.08] text-left">
-              <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-zinc-200">
-                <Video className="w-5 h-5" />
+            {/* Bento Card 3 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <Video className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-white">3. Multimedia Center</h3>
+              <h3 className="text-base font-bold text-white">Day-in-the-Life Masterclasses</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Stream masterclasses, podcast sessions, and animated explainers with interactive transcripts.
+                Watch verified industry leaders break down their daily workflows, architecture decisions, and interview tips with synchronized transcripts.
               </p>
             </div>
 
-            <div className="liquid-glass p-6 rounded-2xl space-y-3 hover:border-white/20 transition-all border border-white/[0.08] text-left">
-              <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-zinc-200">
-                <FileText className="w-5 h-5" />
+            {/* Bento Card 4 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <DownloadCloud className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-white">4. Resource Library</h3>
+              <h3 className="text-base font-bold text-white">ATS-Ready Toolkits &amp; Guides</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Downloadable ATS resume templates, interview roadmaps, and personal sticky notes export.
+                Download proven resume checklists, 30-day interview prep roadmaps, and salary negotiation guides tailored for career success.
+              </p>
+            </div>
+
+            {/* Bento Card 5 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-white">Verified Career Journeys</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Learn from transparent transition timelines: see the education pathways, challenges overcome, and exact advice from working professionals.
+              </p>
+            </div>
+
+            {/* Bento Card 6 */}
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 hover:border-white/20 transition-all border border-white/[0.08] text-left">
+              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+                <Target className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-white">Personal Career Passport</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Save bookmarked roles, attach personal sticky notes, monitor your Career Readiness Score, and export structured PDF summaries.
               </p>
             </div>
           </div>
@@ -653,119 +709,213 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. SITEMAP & FLOW DIAGRAM (SRS PAGE 12) */}
-      <section id="sitemap" className="py-24 px-4 sm:px-8 lg:px-20 bg-zinc-950 border-t border-white/[0.08]">
-        <div className="max-w-6xl mx-auto space-y-10 text-center">
-          <div className="space-y-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">SRS Deliverable &bull; Section 1.9</span>
-            <h2 className="text-3xl font-semibold tracking-tight text-white">
-              PathSeeker Application Sitemap &amp; Flow Diagram
+      {/* 9. HOW IT WORKS */}
+      <section id="how-it-works" className="py-24 px-4 sm:px-8 lg:px-20 bg-zinc-950 border-t border-white/[0.08]">
+        <div className="max-w-6xl mx-auto space-y-12 text-center">
+          <div className="space-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Step-By-Step</span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              How PathSeeker Powers Your Trajectory
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
-              Visual flow depicting module connections, user interactions, and administrator controls.
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
+              A frictionless 3-step journey from career curiosity to guaranteed industry readiness.
             </p>
           </div>
 
-          <div className="liquid-glass-strong p-6 sm:p-8 rounded-2xl border border-white/10 text-left space-y-6 shadow-xl">
-            <div className="flex flex-col items-center text-center">
-              <div className="px-5 py-2 rounded-xl bg-white text-black font-semibold text-xs shadow-sm">
-                PathSeeker Web Application (/)
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 border border-white/[0.08]">
+              <div className="w-10 h-10 rounded-2xl bg-white text-black font-bold text-sm flex items-center justify-center shadow-md">
+                1
               </div>
-              <div className="w-px h-6 bg-white/20 my-1" />
+              <h3 className="text-base font-bold text-white">Select Your Persona</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Choose your track (Student, Graduate, or Professional) to customize the dashboard view, toolkits, and career recommendations for your exact stage.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
-                <div className="font-semibold text-xs text-zinc-200 flex items-center gap-1.5 pb-2 border-b border-white/5">
-                  <Shield className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>1. Authentication</span>
-                </div>
-                <ul className="space-y-1 text-[11px] text-zinc-400">
-                  <li>&bull; <Link to="/login" className="hover:underline text-zinc-300">User Login (/login)</Link></li>
-                  <li>&bull; <Link to="/register" className="hover:underline text-zinc-300">Role Registration (/register)</Link></li>
-                  <li>&bull; Forgot Password / OTP Flow</li>
-                  <li>&bull; Google OAuth 2.0</li>
-                  <li>&bull; Role-Based Guards</li>
-                </ul>
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 border border-white/[0.08]">
+              <div className="w-10 h-10 rounded-2xl bg-white text-black font-bold text-sm flex items-center justify-center shadow-md">
+                2
               </div>
+              <h3 className="text-base font-bold text-white">Complete the AI Profiler</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Answer engaging scenario questions to unlock your Career Readiness Score, trait radar, and high-suitability role rankings.
+              </p>
+            </div>
 
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
-                <div className="font-semibold text-xs text-zinc-200 flex items-center gap-1.5 pb-2 border-b border-white/5">
-                  <Compass className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>2. User Portal</span>
-                </div>
-                <ul className="space-y-1 text-[11px] text-zinc-400">
-                  <li>&bull; <Link to="/dashboard" className="hover:underline text-zinc-300">Career Passport (/dashboard)</Link></li>
-                  <li>&bull; Readiness Score Tracking</li>
-                  <li>&bull; Top Recommendations</li>
-                  <li>&bull; In-App Notifications</li>
-                  <li>&bull; Profile &amp; Resume Editor</li>
-                </ul>
+            <div className="liquid-glass p-7 rounded-3xl space-y-4 border border-white/[0.08]">
+              <div className="w-10 h-10 rounded-2xl bg-white text-black font-bold text-sm flex items-center justify-center shadow-md">
+                3
               </div>
-
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
-                <div className="font-semibold text-xs text-zinc-200 flex items-center gap-1.5 pb-2 border-b border-white/5">
-                  <Layers className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>3. Discovery Engine</span>
-                </div>
-                <ul className="space-y-1 text-[11px] text-zinc-400">
-                  <li>&bull; Career Bank (Multi-level search)</li>
-                  <li>&bull; AI-Powered Interest Quiz</li>
-                  <li>&bull; Multimedia &amp; Transcripts</li>
-                  <li>&bull; Success Stories Hub</li>
-                  <li>&bull; Document Resource Library</li>
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2.5">
-                <div className="font-semibold text-xs text-zinc-200 flex items-center gap-1.5 pb-2 border-b border-white/5">
-                  <Award className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>4. Admin Control</span>
-                </div>
-                <ul className="space-y-1 text-[11px] text-zinc-400">
-                  <li>&bull; <Link to="/admin/dashboard" className="hover:underline text-zinc-300">Telemetry Analytics (/admin)</Link></li>
-                  <li>&bull; Careers Bank CRUD</li>
-                  <li>&bull; Stories Moderation</li>
-                  <li>&bull; Feedback &amp; Inquiries</li>
-                  <li>&bull; User Roles &amp; Directory</li>
-                </ul>
-              </div>
+              <h3 className="text-base font-bold text-white">Execute Your Blueprint</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Stream masterclasses with synchronized transcripts, follow recommended courses, and download ATS resume templates to land your target role.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 10. FOOTER */}
-      <footer className="py-12 px-4 sm:px-8 lg:px-20 bg-black border-t border-white/[0.08] text-left">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center">
-                <Compass className="w-3.5 h-3.5 text-black" />
-              </div>
-              <span className="font-semibold text-sm text-white">PathSeeker</span>
-            </div>
-            <p className="text-xs text-zinc-500 max-w-sm">
-              Discover What Fits You Best. Built for Aptech TechWiz 6 Full-Stack Application Development Competition.
+      {/* 10. FAQ ACCORDION */}
+      <section id="faq" className="py-24 px-4 sm:px-8 lg:px-20 bg-black border-t border-white/[0.08]">
+        <div className="max-w-4xl mx-auto space-y-10">
+          <div className="text-center space-y-2">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Questions &amp; Answers</span>
+            <h2 className="text-3xl font-bold tracking-tight text-white">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400">
+              Everything you need to know about PathSeeker and your Career Passport.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400 font-medium">
-            <a href="#hero" className="hover:text-white transition-colors">Hero</a>
-            <a href="#pillars" className="hover:text-white transition-colors">Pillars</a>
-            <a href="#career-bank" className="hover:text-white transition-colors">Career Bank</a>
-            <a href="#ai-quiz" className="hover:text-white transition-colors">AI Quiz</a>
-            <a href="#sitemap" className="hover:text-white transition-colors">Sitemap</a>
-            <Link to="/login" className="text-zinc-300 hover:text-white transition-colors">Sign In</Link>
-            <Link to="/register" className="px-4 py-1.5 rounded-full bg-white text-black font-semibold hover:bg-zinc-200 transition-all">
-              Launch Passport
+          <div className="space-y-3">
+            {[
+              {
+                q: 'Is PathSeeker free to use?',
+                a: 'Yes! Creating an account, taking the AI Career Assessment, exploring the full Career Bank, and downloading essential resume & interview toolkits is 100% free.',
+              },
+              {
+                q: 'How does the AI Career Assessment match me with roles?',
+                a: 'Our algorithm evaluates your cognitive inclinations, technical interests, problem-solving preferences, and workstyle across 10 specialized industry domains to generate high-accuracy percentage matches.',
+              },
+              {
+                q: 'Can I change my career persona or target role later?',
+                a: 'Absolutely. Whether you start as a Student, Graduate, or Professional, you can switch personas anytime in your dashboard to evaluate different career stages and unlock tailored guidance.',
+              },
+              {
+                q: 'Are the downloadable resumes and interview guides ATS-friendly?',
+                a: 'Yes. Every template in our Resource Library is engineered to pass Applicant Tracking Systems (ATS) and has been vetted by senior hiring managers across global tech companies.',
+              },
+              {
+                q: 'Can I bookmark and export my career findings?',
+                a: 'Yes. You can save your favorite career blueprints, attach private notes, track your quiz history, and export your entire Career Passport summary with one click.',
+              },
+            ].map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="liquid-glass rounded-2xl border border-white/[0.08] overflow-hidden transition-all text-left"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                    className="w-full p-5 flex items-center justify-between gap-4 text-xs sm:text-sm font-semibold text-white hover:text-zinc-200 cursor-pointer"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180 text-white' : ''
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="px-5 pb-5 text-xs text-zinc-400 leading-relaxed border-t border-white/5 pt-3">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 11. HIGH-CONVERTING BOTTOM CTA */}
+      <section className="py-24 px-4 sm:px-8 lg:px-20 bg-gradient-to-b from-black via-zinc-950 to-black border-t border-white/[0.08] text-center relative overflow-hidden">
+        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+          <div className="inline-flex p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-zinc-300">
+            <Compass className="w-8 h-8 text-white" />
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
+            Ready to Take Control of Your Career?
+          </h2>
+          <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed">
+            Join thousands of ambitious seekers unlocking their strengths, exploring verified blueprints, and accelerating their trajectory.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+            <Link
+              to="/register"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 shadow-2xl hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <span>Create Free Account</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-full liquid-glass text-zinc-200 hover:text-white font-semibold text-sm border border-white/10 hover:border-white/20 transition-all"
+            >
+              <span>Sign In to Passport</span>
             </Link>
           </div>
         </div>
+      </section>
 
-        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-600 font-mono">
-          <span>&copy; 2026 PathSeeker &bull; Aptech Limited &bull; TicketToTechwiz</span>
-          <span>Theme: Career Passport &bull; Version 1.0</span>
+      {/* 12. CLEAN MODERN SAAS FOOTER */}
+      <footer className="py-14 px-4 sm:px-8 lg:px-20 bg-black border-t border-white/[0.08] text-left">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-white/5">
+          <div className="space-y-3 md:col-span-1">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center">
+                <Compass className="w-4 h-4 text-black" />
+              </div>
+              <span className="font-bold text-sm text-white">PathSeeker</span>
+            </div>
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              Discover What Fits You Best. Modern career navigation, cognitive profiling, and verified blueprints.
+            </p>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <p className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">Platform</p>
+            <ul className="space-y-1.5 text-zinc-400">
+              <li><a href="#career-bank" className="hover:text-white transition-colors">Career Bank</a></li>
+              <li><a href="#ai-quiz" className="hover:text-white transition-colors">AI Assessment</a></li>
+              <li><a href="#multimedia" className="hover:text-white transition-colors">Masterclasses</a></li>
+              <li><a href="#resources" className="hover:text-white transition-colors">Resource Library</a></li>
+            </ul>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <p className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">Personas</p>
+            <ul className="space-y-1.5 text-zinc-400">
+              <li><Link to="/register?role=student" className="hover:text-white transition-colors">Students Track</Link></li>
+              <li><Link to="/register?role=graduate" className="hover:text-white transition-colors">Graduates Track</Link></li>
+              <li><Link to="/register?role=professional" className="hover:text-white transition-colors">Professionals Track</Link></li>
+              <li><Link to="/login" className="hover:text-white transition-colors">Admin Portal</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <p className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">Company</p>
+            <ul className="space-y-1.5 text-zinc-400">
+              <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+              <li><a href="#faq" className="hover:text-white transition-colors">Frequently Asked Questions</a></li>
+              <li><Link to="/login" className="hover:text-white transition-colors">Customer Portal</Link></li>
+              <li><Link to="/register" className="hover:text-white transition-colors">Join Free</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-600 font-mono">
+          <span>&copy; {new Date().getFullYear()} PathSeeker Inc. All rights reserved.</span>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              All Systems Operational
+            </span>
+          </div>
         </div>
       </footer>
     </div>
