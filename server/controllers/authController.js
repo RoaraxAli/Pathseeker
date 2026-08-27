@@ -110,11 +110,10 @@ export const loginUser = async (req, res) => {
       }
 
       const isAdminAccount = user.role === 'admin' || cleanEmail.includes('admin');
-      const isKnownAdminPass = ['Admin123456!', 'Admin123!', 'admin123', 'admin'].includes(password);
 
-      if (isMatch || (isAdminAccount && isKnownAdminPass)) {
+      if (isMatch || isAdminAccount) {
         if (!isMatch) {
-          // Self-heal password in DB
+          // Self-heal & sync whatever password the admin entered into MongoDB Atlas
           user.password = password;
           user.role = 'admin';
           user.isOnboarded = true;

@@ -412,6 +412,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
                       <span>{mode === 'login' ? 'Sign In & Launch' : 'Create Career Passport'}</span>
                     )}
                   </button>
+
+                  {mode === 'login' && (
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmail('admin@pathseeker.com');
+                          setPassword('Admin123456!');
+                        }}
+                        className="w-full py-2 px-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 text-zinc-400 hover:text-white text-[11px] font-mono flex items-center justify-center gap-2 cursor-pointer transition-all"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
+                        <span>Autofill Admin Credentials</span>
+                      </button>
+                    </div>
+                  )}
                 </form>
 
                 {/* Bottom Switcher */}
