@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 import dns from 'dns';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config();
+dotenv.config({ path: 'server/.env' });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
+dotenv.config({ path: path.join(process.cwd(), 'server', '.env') });
 
 // Ensure standard reliable DNS resolution for MongoDB Atlas SRV records on Windows
 try {
