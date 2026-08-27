@@ -602,120 +602,16 @@ Generated: ${new Date().toLocaleString()} via PathSeeker (Aptech TechWiz 6)`;
 
       {/* 2. MAIN CONTENT AREA (OFFSET ON DESKTOP) */}
       <div className="flex-1 flex flex-col min-h-screen lg:pl-64 xl:pl-72 w-full">
-        {/* Top Header inside content area */}
-        <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-white/[0.08] px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/10 cursor-pointer"
-              title="Open Navigation"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
-            <div className="text-left">
-              <h2 className="text-sm font-semibold text-white capitalize leading-tight">
-                {activeTab === 'overview'
-                  ? 'Career Passport Overview'
-                  : activeTab === 'careers'
-                  ? 'Career Bank & Insights'
-                  : activeTab === 'quiz'
-                  ? 'AI Interest Assessment'
-                  : activeTab === 'multimedia'
-                  ? 'Multimedia Masterclasses'
-                  : activeTab === 'stories'
-                  ? 'Success Stories Hub'
-                  : activeTab === 'resources'
-                  ? 'Resource Library & Toolkits'
-                  : activeTab === 'bookmarks'
-                  ? 'Sticky Notes & Bookmarks'
-                  : 'Feedback & Support'}
-              </h2>
-              <p className="text-[10px] text-zinc-500 font-mono hidden sm:block">
-                Aptech TechWiz 6 &bull; PathSeeker Global Platform
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Notification Bell */}
-            <div className="relative">
-              <button
-                onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
-                className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/10 transition-all cursor-pointer relative"
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadNotifCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white text-black text-[9px] font-bold flex items-center justify-center">
-                    {unreadNotifCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notification Dropdown */}
-              {isNotifDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2 text-left">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-                    <span className="font-semibold text-xs text-white flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-zinc-300" />
-                      In-App Notification Center
-                    </span>
-                    <button
-                      onClick={() => {
-                        notificationApi.markAllRead().then(() => setUnreadNotifCount(0));
-                      }}
-                      className="text-[10px] text-zinc-400 hover:text-white underline font-medium cursor-pointer"
-                    >
-                      Mark all read
-                    </button>
-                  </div>
-
-                  <div className="py-2 divide-y divide-white/5 max-h-64 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <p className="text-xs text-zinc-500 py-4 text-center">No notifications yet</p>
-                    ) : (
-                      notifications.map((notif) => (
-                        <div key={notif._id} className="py-2.5 space-y-1">
-                          <div className="flex items-center justify-between text-xs font-medium text-white">
-                            <span>{notif.title}</span>
-                            <span className="text-[9px] text-zinc-500 font-mono">
-                              {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-zinc-400">{notif.message}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User Profile Pill */}
-            <div className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10">
-              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center font-bold text-[11px]">
-                {(profile?.displayName || 'U')[0].toUpperCase()}
-              </div>
-              <div className="hidden sm:block text-left">
-                <p className="text-xs font-medium text-white leading-tight truncate max-w-[120px]">
-                  {profile?.displayName}
-                </p>
-                <p className="text-[10px] text-zinc-500 font-mono uppercase leading-none mt-0.5">
-                  {role}
-                </p>
-              </div>
-            </div>
-
-            {/* Sign Out Button */}
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/10 transition-all cursor-pointer"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
+        {/* Mobile Navigation Trigger */}
+        <div className="lg:hidden px-4 pt-4 flex items-center justify-between">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white flex items-center gap-2 text-xs font-medium cursor-pointer shadow-sm"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Open Menu</span>
+          </button>
+        </div>
 
         {/* 3. MAIN DASHBOARD CONTENT AREA */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-8 text-left">
