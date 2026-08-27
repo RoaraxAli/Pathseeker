@@ -112,29 +112,15 @@ export const LandingPage: React.FC = () => {
               {item.label}
             </a>
           ))}
-
-          <Link
-            to="/register"
-            className="ml-2 bg-white text-black hover:bg-zinc-200 rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm"
-          >
-            <span>Get Started</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
 
         {/* Right Action */}
         <div className="flex items-center gap-2">
           <Link
             to="/login"
-            className="liquid-glass rounded-full px-4 py-1.5 text-xs font-medium text-zinc-200 hover:text-white hover:border-white/20 transition-all border border-white/10"
+            className="liquid-glass rounded-full px-5 py-2 text-xs font-semibold text-zinc-200 hover:text-white hover:border-white/20 transition-all border border-white/10"
           >
             Sign In
-          </Link>
-          <Link
-            to="/register"
-            className="lg:hidden bg-white text-black rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1"
-          >
-            Get Started
           </Link>
         </div>
       </header>
