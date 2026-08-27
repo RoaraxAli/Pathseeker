@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       const token = localStorage.getItem('techwiz_auth_token');
       const savedUser = localStorage.getItem('techwiz_user_profile');
+      console.log('[AUTH_CONTEXT] Initializing auth. Found token:', !!token, 'Saved user present:', !!savedUser);
 
       if (token && savedUser) {
         try {
@@ -42,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             parsed.isOnboarded = true;
           }
           setProfile(parsed);
+          console.log('[AUTH_CONTEXT] Loaded cached session profile:', parsed.email, 'Role:', parsed.role);
 
           // Verify with backend
           try {
@@ -52,10 +54,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             setProfile(freshProfile);
             localStorage.setItem('techwiz_user_profile', JSON.stringify(freshProfile));
+            console.log('[AUTH_CONTEXT] Verified fresh session with backend:', freshProfile.email);
           } catch (e) {
-            console.warn('Session check fallback to cached session');
+            console.warn('[AUTH_CONTEXT] Backend session check failed, using cached session:', e);
           }
         } catch (e) {
+          console.error('[AUTH_CONTEXT] Failed to parse cached session, clearing storage:', e);
           localStorage.removeItem('techwiz_auth_token');
           localStorage.removeItem('techwiz_user_profile');
         }
@@ -68,8 +72,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, pass: string): Promise<UserProfile> => {
     setLoading(true);
+    console.log('[AUTH_CONTEXT] Dispatching login request for:', email);
     try {
       const data = await authApi.login(email, pass);
+      console.log('[AUTH_CONTEXT] Login response received:', data);
       if (data.role === 'admin' || (data.email && data.email.toLowerCase().includes('admin'))) {
         data.role = 'admin';
         data.isOnboarded = true;
@@ -80,9 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('techwiz_user_profile', JSON.stringify(data));
       setProfile(data);
       setLoading(false);
+      console.log('[AUTH_CONTEXT] Auth state updated successfully. Role:', data.role);
       return data;
     } catch (err: any) {
       setLoading(false);
+      console.error('[AUTH_CONTEXT ERROR] Login error:', err);
       const msg = err.response?.data?.message || err.message || 'Login failed';
       throw new Error(msg);
     }

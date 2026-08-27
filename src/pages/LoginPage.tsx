@@ -16,10 +16,11 @@ import {
   UserCheck,
   ArrowRight,
   Shield,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
-import { UserRole } from '../types';
+import { UserRole, UserProfile } from '../types';
 
 interface LoginPageProps {
   defaultMode?: 'login' | 'register';
@@ -60,34 +61,35 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
   const [demoOtp, setDemoOtp] = useState<string | null>(null);
   const [forgotLoading, setForgotLoading] = useState(false);
 
-  // Sync mode if pathname changes externally
   useEffect(() => {
-    const routeMode = location.pathname === '/register' ? 'register' : 'login';
-    if (routeMode !== mode) {
-      triggerModeSwitch(routeMode);
-    }
-  }, [location.pathname]);
+    console.log('[LOGIN_PAGE] Mounted. Current mode:', mode, 'Redirect URL:', redirectUrl);
+  }, []);
 
   const triggerModeSwitch = (newMode: 'login' | 'register') => {
-    if (newMode === mode && !isSwitching) return;
-    setError('');
+    if (newMode === mode || isSwitching) return;
     setIsSwitching(true);
-
+    setError('');
     setTimeout(() => {
       setMode(newMode);
-      window.history.replaceState(null, '', newMode === 'register' ? '/register' : '/login');
       setIsSwitching(false);
     }, 250);
   };
 
   const handleSuccessfulAuth = (user?: UserProfile) => {
-    if (user?.role === 'admin' || (user?.email && user.email.toLowerCase().includes('admin'))) {
+    console.log('[LOGIN_PAGE] Auth successful! Received user payload:', user);
+    const isUserAdmin = user?.role === 'admin' || (user?.email && user.email.toLowerCase().includes('admin'));
+
+    if (isUserAdmin) {
+      console.log('[LOGIN_PAGE] User is Admin. Redirecting to /admin/dashboard');
       navigate('/admin/dashboard', { replace: true });
     } else if (user && user.isOnboarded === false) {
+      console.log('[LOGIN_PAGE] User is not onboarded. Redirecting to /onboarding');
       navigate('/onboarding', { replace: true });
     } else if (redirectUrl) {
+      console.log('[LOGIN_PAGE] Redirecting to custom redirectUrl:', redirectUrl);
       navigate(redirectUrl, { replace: true });
     } else {
+      console.log('[LOGIN_PAGE] Redirecting to standard /dashboard');
       navigate('/dashboard', { replace: true });
     }
   };
@@ -102,16 +104,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
     }
 
     setLoading(true);
+    console.log(`[LOGIN_PAGE] Submitting ${mode} form for email: "${email.trim()}"`);
     try {
       let user: UserProfile;
       if (mode === 'login') {
-        user = await login(email, password);
+        user = await login(email.trim(), password);
       } else {
         const fullName = `${firstName} ${lastName}`.trim() || firstName || 'PathSeeker Member';
-        user = await register(email, password, fullName);
+        user = await register(email.trim(), password, fullName);
       }
       handleSuccessfulAuth(user);
     } catch (err: any) {
+      console.error('[LOGIN_PAGE ERROR] Authentication failed:', {
+        mode,
+        email,
+        error: err,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
       const serverMsg = err.response?.data?.message || err.message;
       setError(serverMsg || (mode === 'login' ? 'Invalid email or password.' : 'Failed to create account.'));
     } finally {
@@ -121,10 +131,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
 
   const handleGoogleLogin = async () => {
     setError('');
+    console.log('[LOGIN_PAGE] Initiating Google Authentication');
     try {
       const user = await loginWithGoogle();
       handleSuccessfulAuth(user);
     } catch (err: any) {
+      console.error('[LOGIN_PAGE ERROR] Google Login Error:', err);
       if (err.message && !err.message.includes('cancelled')) {
         setError(err.message);
       }
