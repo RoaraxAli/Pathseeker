@@ -117,42 +117,39 @@ function NavBar() {
   return (
     <header className="site-header">
       <nav className="site-nav">
-        <Link to="/" className="brand">
+        <Link to={user ? '/dashboard' : '/'} className="brand">
           PathSeeker
         </Link>
-        <div className="nav-links">
-          <NavLink to="/careers" className={navLinkClass}>
-            Career Bank
-          </NavLink>
-          <NavLink to="/media" className={navLinkClass}>
-            Multimedia
-          </NavLink>
-          <NavLink to="/resources" className={navLinkClass}>
-            Resources
-          </NavLink>
-          <NavLink to="/success-stories" className={navLinkClass}>
-            Success Stories
-          </NavLink>
-          {user && (
+        {user && (
+          <div className="nav-links">
+            <NavLink to="/careers" className={navLinkClass}>
+              Career Bank
+            </NavLink>
+            <NavLink to="/media" className={navLinkClass}>
+              Multimedia
+            </NavLink>
+            <NavLink to="/resources" className={navLinkClass}>
+              Resources
+            </NavLink>
+            <NavLink to="/success-stories" className={navLinkClass}>
+              Success Stories
+            </NavLink>
             <NavLink to="/quiz" className={navLinkClass}>
               Interest Quiz
             </NavLink>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="nav-spacer">
           {user ? (
             <UserMenu user={user} logout={logout} />
           ) : (
             <>
-              <NavLink to="/feedback" className={navLinkClass}>
-                Feedback
-              </NavLink>
               <NavLink to="/login" className={navLinkClass}>
                 Log in
               </NavLink>
               <Link to="/register">
-                <button type="submit" className="btn-sm">
+                <button type="button" className="btn-sm">
                   Sign up
                 </button>
               </Link>
@@ -167,29 +164,85 @@ function NavBar() {
 function Home() {
   const { user, loading } = useAuth()
 
-  if (loading) return <p className="container">Loading...</p>
+  if (loading) return <p className="container" style={{ padding: 'var(--space-8)' }}>Loading...</p>
   if (user) return <Navigate to="/dashboard" replace />
 
   return (
-    <section className="hero-section">
-      <div className="hero-glass">
-        <h1>Find your path, with confidence</h1>
-        <p>
-          Explore careers, take the interest quiz, and get personalized recommendations — all in one place.
+    <div className="landing-container">
+      <section className="hero-section">
+        <div className="hero-glass">
+          <span className="landing-badge">Your Career Navigation Platform</span>
+          <h1>Find your path, with confidence</h1>
+          <p>
+            Explore 20+ specialized career paths, take interest assessments, watch real-world video explainers, and download curated guides — all in one place.
+          </p>
+          <div className="row hero-actions">
+            <Link to="/register">
+              <button type="button">Create a free account</button>
+            </Link>
+            <Link to="/login">
+              <button type="button" className="btn-ghost">Log in to your account</button>
+            </Link>
+          </div>
+          <p className="text-sm muted" style={{ marginTop: 'var(--space-4)' }}>
+            Already have an account? <Link to="/login">Log in</Link>
+          </p>
+        </div>
+      </section>
+
+      <h2 className="landing-section-title">Explore Everything Inside PathSeeker</h2>
+      <p className="landing-section-subtitle">
+        Everything you need to navigate your future career with personalized insights and verified resources.
+      </p>
+
+      <div className="features-grid">
+        <div className="feature-card">
+          <span className="feature-icon">💼</span>
+          <h3>Career Bank</h3>
+          <p>Browse 20+ specialized career paths complete with salary ranges, required skills, and current market demand.</p>
+        </div>
+        <div className="feature-card">
+          <span className="feature-icon">🧭</span>
+          <h3>Interactive Interest Quiz</h3>
+          <p>Take a 17-question assessment to discover career domains tailored to your personal strengths and preferences.</p>
+        </div>
+        <div className="feature-card">
+          <span className="feature-icon">🎬</span>
+          <h3>Multimedia Center</h3>
+          <p>Watch authentic day-in-the-life walkthroughs, podcasts, and expert explainers with full interactive transcripts.</p>
+        </div>
+        <div className="feature-card">
+          <span className="feature-icon">📑</span>
+          <h3>Resource Library</h3>
+          <p>Download proven resume checklists, interview preparation roadmaps, and salary negotiation guides.</p>
+        </div>
+        <div className="feature-card">
+          <span className="feature-icon">🌟</span>
+          <h3>Success Stories</h3>
+          <p>Read inspiring real-world career transition journeys from students, graduates, and working professionals.</p>
+        </div>
+        <div className="feature-card">
+          <span className="feature-icon">📌</span>
+          <h3>Personal Workspace</h3>
+          <p>Bookmark your favorite careers, save private notes, export reports to PDF, and share collections with others.</p>
+        </div>
+      </div>
+
+      <div className="cta-banner">
+        <h2>Ready to find your ideal career?</h2>
+        <p className="muted" style={{ maxWidth: 500, margin: 'var(--space-2) auto var(--space-4)' }}>
+          Join PathSeeker today to access personalized recommendations, quiz tracking, and the full career bank.
         </p>
-        <div className="row hero-actions">
+        <div className="row" style={{ justifyContent: 'center', gap: 'var(--space-3)' }}>
           <Link to="/register">
-            <button type="submit">Create a free account</button>
+            <button type="button">Get Started Free</button>
           </Link>
-          <Link to="/careers">
-            <button type="button">Browse the Career Bank</button>
+          <Link to="/login">
+            <button type="button" className="btn-ghost">Sign In</button>
           </Link>
         </div>
-        <p className="text-sm muted" style={{ marginTop: 'var(--space-4)' }}>
-          Already have an account? <Link to="/login">Log in</Link>
-        </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -208,12 +261,54 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/careers" element={<CareerBank />} />
-        <Route path="/media" element={<MediaCenter />} />
-        <Route path="/media/:id" element={<MediaDetail />} />
-        <Route path="/resources" element={<ResourceLibrary />} />
-        <Route path="/success-stories" element={<SuccessStories />} />
-        <Route path="/feedback" element={<Feedback />} />
+        <Route
+          path="/careers"
+          element={
+            <ProtectedRoute>
+              <CareerBank />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/media"
+          element={
+            <ProtectedRoute>
+              <MediaCenter />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/media/:id"
+          element={
+            <ProtectedRoute>
+              <MediaDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resources"
+          element={
+            <ProtectedRoute>
+              <ResourceLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/success-stories"
+          element={
+            <ProtectedRoute>
+              <SuccessStories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedRoute>
+              <Feedback />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/share/bookmarks/:token" element={<BookmarkShareView />} />
         <Route
           path="/admin"

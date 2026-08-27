@@ -204,7 +204,92 @@
 }
 .hero-actions {
   justify-content: center;
-  margin-top: var(--space-2);
+  margin-top: var(--space-4);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.landing-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-12);
+}
+
+.landing-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(139, 124, 255, 0.15);
+  border: 1px solid rgba(139, 124, 255, 0.3);
+  color: #c4b5fd;
+  margin-bottom: var(--space-4);
+}
+
+.landing-section-title {
+  text-align: center;
+  margin: var(--space-10) 0 var(--space-2);
+}
+
+.landing-section-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: var(--space-8);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+}
+
+.feature-card {
+  padding: var(--space-6);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(139, 124, 255, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-3);
+  display: inline-block;
+}
+
+.feature-card h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.2rem;
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.cta-banner {
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  background: linear-gradient(135deg, rgba(139, 124, 255, 0.12), rgba(34, 211, 238, 0.08));
+  border: 1px solid rgba(139, 124, 255, 0.25);
+  border-radius: 24px;
+  margin-top: var(--space-8);
 }
 
 @media (max-width: 800px) {

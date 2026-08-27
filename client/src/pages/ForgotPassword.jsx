@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../api/client';
 
 // Two-step flow: request an OTP, then submit it with a new password.
 // Both steps happen on this one page.
 export default function ForgotPassword() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState('request'); // 'request' | 'reset'
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
