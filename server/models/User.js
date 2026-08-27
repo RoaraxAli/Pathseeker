@@ -1,33 +1,8 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-
-const ROLES = ['student', 'graduate', 'professional', 'admin'];
-
-const educationSchema = new mongoose.Schema(
-  {
-    school: { type: String, required: true, trim: true },
-    degree: { type: String, trim: true },
-    fieldOfStudy: { type: String, trim: true },
-    startYear: { type: Number },
-    endYear: { type: Number },
-  },
-  { _id: true }
-);
-
-const workExperienceSchema = new mongoose.Schema(
-  {
-    company: { type: String, required: true, trim: true },
-    title: { type: String, trim: true },
-    startDate: { type: Date },
-    endDate: { type: Date }, // omitted/null = still working there
-    description: { type: String, trim: true },
-  },
-  { _id: true }
-);
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
     email: {
       type: String,
       required: true,
@@ -35,38 +10,93 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, select: false },
-    role: { type: String, enum: ROLES, default: 'student' },
-    lastLoginAt: { type: Date }, // set on each successful login — powers "active users" in admin analytics
-
-    // Set only while a password-reset OTP is pending; cleared after use or expiry.
-    resetOTPHash: { type: String, select: false },
-    resetOTPExpires: { type: Date, select: false },
-
-    // Profile (Phase 2)
-    education: { type: [educationSchema], default: [] },
-    skills: { type: [String], default: [] },
-    interests: { type: [String], default: [] },
-    workExperience: { type: [workExperienceSchema], default: [] },
-    resume: {
-      filename: { type: String }, // name on disk, used to serve/delete the file
-      originalName: { type: String },
-      mimeType: { type: String },
-      size: { type: Number },
-      uploadedAt: { type: Date },
+    password: {
+      type: String,
+      required: true,
+    },
+    displayName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    photoURL: {
+      type: String,
+      default: '',
+    },
+    phoneNumber: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    role: {
+      type: String,
+      enum: ['student', 'graduate', 'professional', 'admin', 'customer'],
+      default: 'student',
+    },
+    educationLevel: {
+      type: String,
+      default: 'Undergraduate',
+      trim: true,
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    interests: {
+      type: [String],
+      default: [],
+    },
+    workExperience: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    resumeUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    targetRole: {
+      type: String,
+      default: 'Full-Stack Developer',
+      trim: true,
+    },
+    bio: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    readinessScore: {
+      type: Number,
+      default: 72,
+    },
+    resetOtp: {
+      type: String,
+      default: null,
+    },
+    resetOtpExpires: {
+      type: Date,
+      default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-userSchema.pre('save', async function hashPassword() {
-  if (!this.isModified('password')) return;
-  this.password = await bcrypt.hash(this.password, 10);
+// Pre-save hook to hash password if modified
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-userSchema.methods.comparePassword = function comparePassword(candidate) {
-  return bcrypt.compare(candidate, this.password);
+// Compare password method
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
-module.exports.ROLES = ROLES;
+export const User = mongoose.model('User', userSchema);

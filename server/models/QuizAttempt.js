@@ -1,20 +1,39 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const quizAttemptSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    answers: [
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    scores: {
+      tech: { type: Number, default: 0 },
+      data: { type: Number, default: 0 },
+      creative: { type: Number, default: 0 },
+      leadership: { type: Number, default: 0 },
+      healthcare: { type: Number, default: 0 },
+      cybersecurity: { type: Number, default: 0 },
+    },
+    primaryDomain: {
+      type: String,
+      default: 'Software & Cloud',
+    },
+    recommendedCareers: [
       {
-        question: { type: mongoose.Schema.Types.ObjectId, ref: 'QuizQuestion', required: true },
-        value: { type: mongoose.Schema.Types.Mixed }, // number (rating/slider) or string (option value)
+        title: { type: String, required: true },
+        matchPercentage: { type: Number, required: true },
+        domain: { type: String, default: '' },
       },
     ],
-    // Per-category score, normalized 0-100.
-    scores: { type: Map, of: Number, default: {} },
-    topCategories: { type: [String], default: [] },
-    suggestedCareers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Career' }],
+    answersCount: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('QuizAttempt', quizAttemptSchema);
+export const QuizAttempt = mongoose.model('QuizAttempt', quizAttemptSchema);

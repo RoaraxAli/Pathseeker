@@ -1,29 +1,69 @@
-const mongoose = require('mongoose');
-
-const RESOURCE_TYPES = ['pdf', 'checklist', 'template', 'guide'];
+import mongoose from 'mongoose';
 
 const resourceSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
-    type: { type: String, enum: RESOURCE_TYPES, default: 'pdf' },
-    domain: { type: String, trim: true },
-    tags: { type: [String], default: [] },
-
-    sourceType: { type: String, enum: ['upload', 'external'], required: true },
-    file: {
-      filename: String,
-      originalName: String,
-      mimeType: String,
-      size: Number,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    externalUrl: { type: String, trim: true },
-
-    downloadCount: { type: Number, default: 0 },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    category: {
+      type: String,
+      enum: [
+        'Resume Template',
+        'Career Roadmap',
+        'Interview Checklist',
+        'Scholarship Guide',
+        'Skill Cheat Sheet',
+        'Infographic',
+      ],
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    fileUrl: {
+      type: String,
+      required: true,
+    },
+    previewSnippet: {
+      type: String,
+      default: '',
+    },
+    fileType: {
+      type: String,
+      default: 'PDF',
+    },
+    fileSize: {
+      type: String,
+      default: '2.4 MB',
+    },
+    tags: {
+      type: [String],
+      default: [],
+    },
+    targetAudience: {
+      type: [String],
+      enum: ['student', 'graduate', 'professional', 'all'],
+      default: ['all'],
+    },
+    downloadsCount: {
+      type: Number,
+      default: 0,
+    },
+    viewsCount: {
+      type: Number,
+      default: 0,
+    },
+    isPopular: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Resource', resourceSchema);
-module.exports.RESOURCE_TYPES = RESOURCE_TYPES;
+export const Resource = mongoose.model('Resource', resourceSchema);
