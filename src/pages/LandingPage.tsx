@@ -38,10 +38,10 @@ import { careerApi, storyApi, multimediaApi, resourceApi } from '../services/api
 import { CareerItem, SuccessStoryItem, MultimediaItem, ResourceItem } from '../types';
 
 const motionProps = (delay: number) => ({
-  initial: { filter: 'blur(8px)', opacity: 0, y: 16 },
-  whileInView: { filter: 'blur(0px)', opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] },
 });
 
 export const LandingPage: React.FC = () => {
@@ -57,7 +57,7 @@ export const LandingPage: React.FC = () => {
     careerApi.getCareers({}).then((res) => setCareers(res.slice(0, 6))).catch(() => {});
     storyApi.getAll({}).then((res) => setStories(res.slice(0, 3))).catch(() => {});
     multimediaApi.getAll({}).then((res) => setMultimedia(res.slice(0, 3))).catch(() => {});
-    resourceApi.getResources({}).then((res) => setResources(res.slice(0, 4))).catch(() => {});
+    resourceApi.getAll({}).then((res) => setResources(res.slice(0, 4))).catch(() => {});
   }, []);
 
   const domains = [

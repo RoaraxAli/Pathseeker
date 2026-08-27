@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface BlurTextProps {
@@ -47,15 +47,15 @@ export const BlurText: React.FC<BlurTextProps> = ({ text, className = '' }) => {
             display: 'inline-block',
             marginRight: '0.28em',
           }}
-          initial={{ filter: 'blur(10px)', opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={
             isInView
-              ? { filter: 'blur(0px)', opacity: 1, y: 0 }
-              : { filter: 'blur(10px)', opacity: 0, y: 50 }
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 24 }
           }
           transition={{
-            duration: 0.7,
-            delay: index * 0.1,
+            duration: 0.6,
+            delay: index * 0.06,
             ease: [0.22, 1, 0.36, 1],
           }}
         >
