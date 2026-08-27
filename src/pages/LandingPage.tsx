@@ -34,8 +34,8 @@ import {
 } from 'lucide-react';
 import { FadingVideo } from '../components/FadingVideo';
 import { BlurText } from '../components/BlurText';
-import { careerApi, storyApi, multimediaApi } from '../services/api';
-import { CareerItem, SuccessStoryItem, MultimediaItem } from '../types';
+import { careerApi, storyApi, multimediaApi, resourceApi } from '../services/api';
+import { CareerItem, SuccessStoryItem, MultimediaItem, ResourceItem } from '../types';
 
 const motionProps = (delay: number) => ({
   initial: { filter: 'blur(8px)', opacity: 0, y: 16 },
@@ -48,6 +48,7 @@ export const LandingPage: React.FC = () => {
   const [careers, setCareers] = useState<CareerItem[]>([]);
   const [stories, setStories] = useState<SuccessStoryItem[]>([]);
   const [multimedia, setMultimedia] = useState<MultimediaItem[]>([]);
+  const [resources, setResources] = useState<ResourceItem[]>([]);
   const [activeDomainFilter, setActiveDomainFilter] = useState('All Domains');
   const [interactiveQuizAnswer, setInteractiveQuizAnswer] = useState<number | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -56,6 +57,7 @@ export const LandingPage: React.FC = () => {
     careerApi.getCareers({}).then((res) => setCareers(res.slice(0, 6))).catch(() => {});
     storyApi.getAll({}).then((res) => setStories(res.slice(0, 3))).catch(() => {});
     multimediaApi.getAll({}).then((res) => setMultimedia(res.slice(0, 3))).catch(() => {});
+    resourceApi.getResources({}).then((res) => setResources(res.slice(0, 4))).catch(() => {});
   }, []);
 
   const domains = [
@@ -678,26 +680,21 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { title: '2026 Tech Resume Master Toolkit', type: 'Resume Template', size: '1.8 MB', downloads: '1,240' },
-              { title: 'Full-Stack Developer Roadmap', type: 'Career Roadmap', size: '3.2 MB', downloads: '1,890' },
-              { title: 'Technical Interview 30-Day Checklist', type: 'Interview Checklist', size: '1.2 MB', downloads: '960' },
-              { title: 'Global Tech Scholarships Directory', type: 'Scholarship Guide', size: '2.6 MB', downloads: '810' },
-            ].map((res, idx) => (
+            {resources.map((res) => (
               <div
-                key={idx}
+                key={res._id}
                 className="liquid-glass p-5 rounded-2xl text-left space-y-4 hover:border-white/20 transition-all flex flex-col justify-between border border-white/[0.08]"
               >
                 <div className="space-y-1.5">
-                  <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-white/5 text-zinc-300 border border-white/5">
-                    {res.type}
+                  <span className="px-2.5 py-0.5 text-[10px] font-medium rounded bg-white/5 text-zinc-300 border border-white/5">
+                    {res.category}
                   </span>
-                  <h3 className="text-xs font-semibold text-white">{res.title}</h3>
-                  <p className="text-[11px] text-zinc-500 font-mono">PDF Document &bull; {res.size}</p>
+                  <h3 className="text-xs font-semibold text-white line-clamp-2">{res.title}</h3>
+                  <p className="text-[11px] text-zinc-500 font-mono">{res.fileType || 'PDF'} &bull; {res.fileSize || '2.4 MB'}</p>
                 </div>
 
                 <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-zinc-400">{res.downloads} downloads</span>
+                  <span className="text-[11px] text-zinc-400">{res.downloadsCount?.toLocaleString() || 0} downloads</span>
                   <Link to="/login" className="text-zinc-200 hover:text-white font-medium flex items-center gap-1">
                     <DownloadCloud className="w-3.5 h-3.5" />
                     <span>Get PDF</span>
