@@ -565,16 +565,20 @@ export const LandingPage: React.FC = () => {
             {multimedia.map((item) => (
               <div
                 key={item._id}
-                className="liquid-glass rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col justify-between text-left border border-white/[0.08]"
+                className="liquid-glass rounded-3xl overflow-hidden hover:border-white/20 transition-all flex flex-col h-full text-left border border-white/[0.08] group"
               >
-                <div className="relative aspect-video bg-zinc-900">
-                  <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover opacity-80" />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg">
+                <div className="relative w-full aspect-video bg-zinc-900 shrink-0 overflow-hidden">
+                  <img
+                    src={item.thumbnailUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+                    <div className="w-11 h-11 rounded-full bg-white text-black flex items-center justify-center shadow-xl">
                       <Play className="w-4 h-4 fill-black ml-0.5" />
                     </div>
                   </div>
-                  <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-zinc-300">
+                  <span className="absolute bottom-2 right-2 px-2.5 py-0.5 rounded-full bg-black/80 text-[10px] font-mono text-zinc-300 backdrop-blur-sm border border-white/10">
                     {item.duration}
                   </span>
                 </div>
@@ -583,17 +587,17 @@ export const LandingPage: React.FC = () => {
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[10px]">
                       <span className="text-zinc-400 uppercase font-mono">{item.type} &bull; {item.domain}</span>
-                      <span className="text-zinc-300 font-mono flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-zinc-300 text-zinc-300" /> {item.ratingAvg}
+                      <span className="text-amber-400 font-mono flex items-center gap-1 font-semibold">
+                        <Star className="w-3 h-3 fill-amber-400" /> {item.ratingAvg}
                       </span>
                     </div>
-                    <h3 className="text-sm font-semibold text-white line-clamp-2">{item.title}</h3>
+                    <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug">{item.title}</h3>
                   </div>
 
                   <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
-                    <span>{item.speaker?.name}</span>
-                    <Link to="/login" className="text-zinc-300 hover:text-white font-medium flex items-center gap-1">
-                      <span>Watch</span>
+                    <span>{item.speaker?.name || 'Industry Expert'}</span>
+                    <Link to="/login" className="text-zinc-200 hover:text-white font-semibold flex items-center gap-1">
+                      <span>Watch Full</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

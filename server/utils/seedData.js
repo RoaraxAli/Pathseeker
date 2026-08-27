@@ -260,7 +260,7 @@ export const SEED_MULTIMEDIA = [
     title: 'Podcast: From Junior Student to Lead AI Engineer in 3 Years',
     type: 'podcast',
     url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=600&auto=format&fit=crop',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?q=80&w=800&auto=format&fit=crop',
     domain: 'AI & Data Science',
     duration: '32:15',
     speaker: {
