@@ -25,6 +25,17 @@ export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile, updateProfile, logout } = useAuth();
 
+  React.useEffect(() => {
+    if (profile) {
+      const isAdmin = profile.role === 'admin' || (profile.email && profile.email.toLowerCase().includes('admin'));
+      if (isAdmin) {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (profile.isOnboarded === true) {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [profile, navigate]);
+
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedRole, setSelectedRole] = useState<UserRole>(profile?.role || 'student');
   const [selectedGender, setSelectedGender] = useState<string>(profile?.gender || '');

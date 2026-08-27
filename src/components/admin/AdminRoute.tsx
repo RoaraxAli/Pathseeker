@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ShieldAlert, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -23,8 +23,9 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If user has 'admin' role, render the admin dashboard/page
-  if (role === 'admin') {
+  // If user has 'admin' role or admin email, render the admin dashboard/page
+  const isAdmin = role === 'admin' || profile.role === 'admin' || (profile.email && profile.email.toLowerCase().includes('admin'));
+  if (isAdmin) {
     return <>{children}</>;
   }
 

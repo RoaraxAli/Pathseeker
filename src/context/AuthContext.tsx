@@ -37,11 +37,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token && savedUser) {
         try {
           const parsed = JSON.parse(savedUser) as UserProfile;
+          if (parsed.role === 'admin' || (parsed.email && parsed.email.toLowerCase().includes('admin'))) {
+            parsed.role = 'admin';
+            parsed.isOnboarded = true;
+          }
           setProfile(parsed);
 
           // Verify with backend
           try {
             const freshProfile = await authApi.getMe();
+            if (freshProfile.role === 'admin' || (freshProfile.email && freshProfile.email.toLowerCase().includes('admin'))) {
+              freshProfile.role = 'admin';
+              freshProfile.isOnboarded = true;
+            }
             setProfile(freshProfile);
             localStorage.setItem('techwiz_user_profile', JSON.stringify(freshProfile));
           } catch (e) {
@@ -62,6 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       const data = await authApi.login(email, pass);
+      if (data.role === 'admin' || (data.email && data.email.toLowerCase().includes('admin'))) {
+        data.role = 'admin';
+        data.isOnboarded = true;
+      }
       if (data.token) {
         localStorage.setItem('techwiz_auth_token', data.token);
       }
