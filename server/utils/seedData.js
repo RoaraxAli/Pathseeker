@@ -688,14 +688,18 @@ export const seedDatabase = async () => {
       await Feedback.insertMany(SEED_FEEDBACK);
     }
 
-    const notificationsCount = await Notification.countDocuments();
-    if (notificationsCount === 0) {
-      console.log('🌱 Seeding Welcome Notifications...');
-      await Notification.create({
-        userId: null,
-        title: 'Welcome to PathSeeker!',
-        message: 'Your Career Passport platform is fully active. Complete the AI interest quiz and explore trending careers in the Career Bank.',
-        type: 'system',
+    // Ensure Default Administrator is Seeded
+    let adminUser = await User.findOne({ email: 'admin@pathseeker.com' });
+    if (!adminUser) {
+      console.log('🌱 Seeding Default Administrator Account...');
+      await User.create({
+        email: 'admin@pathseeker.com',
+        password: 'Admin123456!',
+        displayName: 'System Administrator',
+        role: 'admin',
+        isOnboarded: true,
+        educationLevel: 'Postgraduate / Staff',
+        targetRole: 'Platform Orchestrator',
       });
     }
 
