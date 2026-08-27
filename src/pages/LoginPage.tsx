@@ -82,13 +82,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
 
   const handleSuccessfulAuth = (user?: UserProfile) => {
     if (user?.role === 'admin' || (user?.email && user.email.toLowerCase().includes('admin'))) {
-      navigate('/admin/dashboard');
+      navigate('/admin/dashboard', { replace: true });
     } else if (user && user.isOnboarded === false) {
-      navigate('/onboarding');
+      navigate('/onboarding', { replace: true });
     } else if (redirectUrl) {
-      navigate(redirectUrl);
+      navigate(redirectUrl, { replace: true });
     } else {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   };
 

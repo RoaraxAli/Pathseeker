@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     },
     displayName: {
       type: String,
-      required: true,
+      default: 'PathSeeker Member',
       trim: true,
     },
     photoURL: {
@@ -47,9 +47,8 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     workExperience: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       default: '',
-      trim: true,
     },
     resumeUrl: {
       type: String,
