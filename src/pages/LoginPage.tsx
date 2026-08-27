@@ -81,10 +81,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
   };
 
   const handleSuccessfulAuth = (user?: UserProfile) => {
-    if (redirectUrl) {
-      navigate(redirectUrl);
-    } else if (user?.role === 'admin' || role === 'admin') {
+    if (user?.role === 'admin' || (user?.email && user.email.toLowerCase().includes('admin'))) {
       navigate('/admin/dashboard');
+    } else if (user && user.isOnboarded === false) {
+      navigate('/onboarding');
+    } else if (redirectUrl) {
+      navigate(redirectUrl);
     } else {
       navigate('/dashboard');
     }
@@ -106,7 +108,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
         user = await login(email, password);
       } else {
         const fullName = `${firstName} ${lastName}`.trim() || firstName || 'PathSeeker Member';
-        user = await register(email, password, fullName, selectedRole, educationLevel);
+        user = await register(email, password, fullName);
       }
       handleSuccessfulAuth(user);
     } catch (err: any) {
@@ -120,7 +122,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
   const handleGoogleLogin = async () => {
     setError('');
     try {
-      const user = await loginWithGoogle(selectedRole);
+      const user = await loginWithGoogle();
       handleSuccessfulAuth(user);
     } catch (err: any) {
       if (err.message && !err.message.includes('cancelled')) {
@@ -348,38 +350,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ defaultMode }) => {
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                         />
-                      </div>
-
-                      {/* Role Picker */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-zinc-300 block">
-                          Career Stage Persona
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { id: 'student', label: 'Student', icon: GraduationCap },
-                            { id: 'graduate', label: 'Graduate', icon: Briefcase },
-                            { id: 'professional', label: 'Professional', icon: UserCheck },
-                          ].map((item) => {
-                            const Icon = item.icon;
-                            const isSelected = selectedRole === item.id;
-                            return (
-                              <button
-                                key={item.id}
-                                type="button"
-                                onClick={() => setSelectedRole(item.id as UserRole)}
-                                className={`p-2.5 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 cursor-pointer ${
-                                  isSelected
-                                    ? 'bg-white text-black border-white shadow-sm font-semibold'
-                                    : 'bg-white/[0.02] text-zinc-400 border-white/[0.08] hover:bg-white/[0.05]'
-                                }`}
-                              >
-                                <Icon className="w-3.5 h-3.5" />
-                                <span className="text-[11px]">{item.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
                       </div>
                     </>
                   )}

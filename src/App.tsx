@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -21,8 +21,9 @@ import { AdminNewsPage } from './pages/admin/AdminNewsPage';
 import { AdminCandidatesPage } from './pages/admin/AdminCandidatesPage';
 import { AdminCompaniesPage } from './pages/admin/AdminCompaniesPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { OnboardingPage } from './pages/OnboardingPage';
 
-// Public-Only Route: Redirects logged-in users to /dashboard or /admin
+// Public-Only Route: Redirects logged-in users to /dashboard, /onboarding, or /admin
 const PublicOnlyRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { profile, role, loading } = useAuth();
 
@@ -35,13 +36,15 @@ const PublicOnlyRoute: React.FC<{ element: React.ReactElement }> = ({ element })
   }
 
   if (profile) {
-    return <Navigate to={role === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
+    if (role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+    if (profile.isOnboarded === false) return <Navigate to="/onboarding" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return element;
 };
 
-// Protected Dashboard Wrapper: Redirects unauthenticated users to /login
+// Protected Dashboard Wrapper: Redirects unauthenticated users to /login and non-onboarded to /onboarding
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { profile, loading } = useAuth();
 
@@ -54,10 +57,40 @@ const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) 
   }
 
   if (profile) {
+    if (profile.role !== 'admin' && profile.isOnboarded === false) {
+      return <Navigate to="/onboarding" replace />;
+    }
     return element;
   }
 
   return <Navigate to="/login" replace />;
+};
+
+// Onboarding Route Guard: Accessible only to logged in users who are not yet onboarded
+const OnboardingRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { profile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white/50 text-xs font-mono">
+        Connecting to session...
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (profile.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  if (profile.isOnboarded === true) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return element;
 };
 
 export const App: React.FC = () => {
@@ -72,7 +105,10 @@ export const App: React.FC = () => {
           <Route path="/login" element={<PublicOnlyRoute element={<LoginPage />} />} />
           <Route path="/register" element={<PublicOnlyRoute element={<RegisterPage />} />} />
 
-          {/* User / Customer Dashboard (accessible when logged in) */}
+          {/* Guided Onboarding Wizard (accessible for authenticated non-onboarded users) */}
+          <Route path="/onboarding" element={<OnboardingRoute element={<OnboardingPage />} />} />
+
+          {/* User / Customer Dashboard (accessible when logged in & onboarded) */}
           <Route path="/dashboard" element={<ProtectedRoute element={<DashboardPage />} />} />
 
           {/* Admin Portal Suite (accessible when role === 'admin') */}

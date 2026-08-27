@@ -70,6 +70,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 72,
     },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'non-binary', 'prefer-not-to-say', 'other', ''],
+      default: '',
+    },
+    isOnboarded: {
+      type: Boolean,
+      default: false,
+    },
     resetOtp: {
       type: String,
       default: null,

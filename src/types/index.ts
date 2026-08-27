@@ -17,6 +17,8 @@ export interface UserProfile {
   targetRole?: string;
   bio?: string;
   readinessScore?: number;
+  gender?: string;
+  isOnboarded?: boolean;
   createdAt?: string;
   updatedAt?: string;
   token?: string;

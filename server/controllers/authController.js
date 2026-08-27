@@ -19,6 +19,8 @@ const formatUserResponse = (user, token) => ({
   photoURL: user.photoURL || '',
   phoneNumber: user.phoneNumber || '',
   educationLevel: user.educationLevel || 'Undergraduate',
+  gender: user.gender || '',
+  isOnboarded: user.role === 'admin' ? true : Boolean(user.isOnboarded),
   skills: user.skills || [],
   interests: user.interests || [],
   workExperience: user.workExperience || '',
@@ -59,6 +61,8 @@ export const registerUser = async (req, res) => {
       role: assignedRole,
       educationLevel: educationLevel || (assignedRole === 'graduate' ? 'Bachelor Degree' : assignedRole === 'professional' ? 'Industry Professional' : 'Undergraduate Student'),
       targetRole: targetRole || 'Software Engineer',
+      gender: '',
+      isOnboarded: assignedRole === 'admin',
       skills: ['Problem Solving', 'Communication', 'JavaScript'],
       interests: ['Web Development', 'Cloud Computing', 'AI'],
       readinessScore: assignedRole === 'professional' ? 88 : assignedRole === 'graduate' ? 76 : 68,
@@ -118,6 +122,8 @@ export const googleLogin = async (req, res) => {
         photoURL: photoURL || '',
         role: assignedRole,
         educationLevel: 'Undergraduate',
+        gender: '',
+        isOnboarded: assignedRole === 'admin',
         skills: ['Problem Solving', 'Digital Literacy'],
         interests: ['Technology', 'Career Passport'],
       });
@@ -164,12 +170,16 @@ export const updateUserProfile = async (req, res) => {
       targetRole,
       bio,
       role,
+      gender,
+      isOnboarded,
     } = req.body;
 
     if (displayName) user.displayName = displayName.trim();
     if (phoneNumber !== undefined) user.phoneNumber = phoneNumber.trim();
     if (photoURL !== undefined) user.photoURL = photoURL.trim();
     if (educationLevel !== undefined) user.educationLevel = educationLevel;
+    if (gender !== undefined) user.gender = gender;
+    if (isOnboarded !== undefined) user.isOnboarded = Boolean(isOnboarded);
     if (skills !== undefined) user.skills = Array.isArray(skills) ? skills : skills.split(',').map((s) => s.trim());
     if (interests !== undefined) user.interests = Array.isArray(interests) ? interests : interests.split(',').map((i) => i.trim());
     if (workExperience !== undefined) user.workExperience = workExperience;
