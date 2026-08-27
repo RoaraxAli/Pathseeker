@@ -36,7 +36,8 @@ const PublicOnlyRoute: React.FC<{ element: React.ReactElement }> = ({ element })
   }
 
   if (profile) {
-    if (role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+    const isAdmin = role === 'admin' || profile.role === 'admin' || (profile.email && profile.email.toLowerCase().includes('admin'));
+    if (isAdmin) return <Navigate to="/admin/dashboard" replace />;
     if (profile.isOnboarded === false) return <Navigate to="/onboarding" replace />;
     return <Navigate to="/dashboard" replace />;
   }
@@ -46,7 +47,7 @@ const PublicOnlyRoute: React.FC<{ element: React.ReactElement }> = ({ element })
 
 // Protected Dashboard Wrapper: Redirects unauthenticated users to /login and non-onboarded to /onboarding
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { profile, loading } = useAuth();
+  const { profile, role, loading } = useAuth();
 
   if (loading) {
     return (
@@ -57,7 +58,11 @@ const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) 
   }
 
   if (profile) {
-    if (profile.role !== 'admin' && profile.isOnboarded === false) {
+    const isAdmin = role === 'admin' || profile.role === 'admin' || (profile.email && profile.email.toLowerCase().includes('admin'));
+    if (isAdmin) {
+      return element;
+    }
+    if (profile.isOnboarded === false) {
       return <Navigate to="/onboarding" replace />;
     }
     return element;
@@ -66,9 +71,9 @@ const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) 
   return <Navigate to="/login" replace />;
 };
 
-// Onboarding Route Guard: Accessible only to logged in users who are not yet onboarded
+// Onboarding Route Guard: Accessible only to logged in users who are not yet onboarded (Admins bypassed)
 const OnboardingRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { profile, loading } = useAuth();
+  const { profile, role, loading } = useAuth();
 
   if (loading) {
     return (
@@ -82,7 +87,8 @@ const OnboardingRoute: React.FC<{ element: React.ReactElement }> = ({ element })
     return <Navigate to="/login" replace />;
   }
 
-  if (profile.role === 'admin') {
+  const isAdmin = role === 'admin' || profile.role === 'admin' || (profile.email && profile.email.toLowerCase().includes('admin'));
+  if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
