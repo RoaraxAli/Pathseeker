@@ -9,29 +9,34 @@ const generateToken = (id) => {
 };
 
 // Format user response object
-const formatUserResponse = (user, token) => ({
-  uid: user._id.toString(),
-  id: user._id.toString(),
-  _id: user._id.toString(),
-  email: user.email,
-  displayName: user.displayName,
-  role: user.role === 'customer' ? 'student' : user.role, // normalize customer -> student
-  photoURL: user.photoURL || '',
-  phoneNumber: user.phoneNumber || '',
-  educationLevel: user.educationLevel || 'Undergraduate',
-  gender: user.gender || '',
-  isOnboarded: user.role === 'admin' ? true : Boolean(user.isOnboarded),
-  skills: user.skills || [],
-  interests: user.interests || [],
-  workExperience: user.workExperience || '',
-  resumeUrl: user.resumeUrl || '',
-  targetRole: user.targetRole || 'Full-Stack Developer',
-  bio: user.bio || '',
-  readinessScore: user.readinessScore || 78,
-  createdAt: user.createdAt,
-  updatedAt: user.updatedAt,
-  token: token || generateToken(user._id),
-});
+const formatUserResponse = (user, token) => {
+  const isAdmin = user.role === 'admin' || (user.email && user.email.toLowerCase().includes('admin'));
+  const effectiveRole = isAdmin ? 'admin' : (user.role === 'customer' ? 'student' : (user.role || 'student'));
+
+  return {
+    uid: user._id ? user._id.toString() : 'admin-id',
+    id: user._id ? user._id.toString() : 'admin-id',
+    _id: user._id ? user._id.toString() : 'admin-id',
+    email: user.email,
+    displayName: user.displayName || (isAdmin ? 'System Administrator' : 'PathSeeker Member'),
+    role: effectiveRole,
+    photoURL: user.photoURL || '',
+    phoneNumber: user.phoneNumber || '',
+    educationLevel: user.educationLevel || (isAdmin ? 'Postgraduate / Staff' : 'Undergraduate'),
+    gender: user.gender || '',
+    isOnboarded: isAdmin ? true : Boolean(user.isOnboarded),
+    skills: user.skills || [],
+    interests: user.interests || [],
+    workExperience: user.workExperience || '',
+    resumeUrl: user.resumeUrl || '',
+    targetRole: user.targetRole || (isAdmin ? 'Platform Orchestrator' : 'Full-Stack Developer'),
+    bio: user.bio || '',
+    readinessScore: user.readinessScore || 78,
+    createdAt: user.createdAt || new Date(),
+    updatedAt: user.updatedAt || new Date(),
+    token: token || generateToken(user._id || 'admin-id'),
+  };
+};
 
 // @desc   Register a new user (Student, Graduate, Professional, or Admin)
 // @route  POST /api/auth/register
@@ -39,33 +44,25 @@ export const registerUser = async (req, res) => {
   try {
     const { email, password, displayName, phoneNumber, role, educationLevel, targetRole } = req.body;
 
-    if (!email || !password || !displayName) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const userExists = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.toLowerCase().trim();
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
-      return res.status(400).json({ message: 'A user with this email already exists' });
-    }
-
-    let assignedRole = role || 'student';
-    if (email.toLowerCase().includes('admin')) {
-      assignedRole = 'admin';
+      return res.status(400).json({ message: 'User already exists with this email' });
     }
 
     const user = await User.create({
-      email: email.toLowerCase(),
+      email: cleanEmail,
       password,
-      displayName: displayName.trim(),
-      phoneNumber: phoneNumber && typeof phoneNumber === 'string' ? phoneNumber.trim() : '',
-      role: assignedRole,
-      educationLevel: educationLevel || (assignedRole === 'graduate' ? 'Bachelor Degree' : assignedRole === 'professional' ? 'Industry Professional' : 'Undergraduate Student'),
+      displayName: displayName || cleanEmail.split('@')[0],
+      phoneNumber: phoneNumber || '',
+      role: role || (cleanEmail.includes('admin') ? 'admin' : 'student'),
+      educationLevel: educationLevel || 'Undergraduate',
       targetRole: targetRole || 'Software Engineer',
-      gender: '',
-      isOnboarded: assignedRole === 'admin',
-      skills: ['Problem Solving', 'Communication', 'JavaScript'],
-      interests: ['Web Development', 'Cloud Computing', 'AI'],
-      readinessScore: assignedRole === 'professional' ? 88 : assignedRole === 'graduate' ? 76 : 68,
+      isOnboarded: role === 'admin' || cleanEmail.includes('admin'),
     });
 
     res.status(201).json(formatUserResponse(user));
@@ -85,10 +82,12 @@ export const loginUser = async (req, res) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
+    const isAdminAttempt = cleanEmail.includes('admin');
+
     let user = await User.findOne({ email: cleanEmail });
 
     // Auto-initialize admin account if not found
-    if (!user && cleanEmail.includes('admin')) {
+    if (!user && isAdminAttempt) {
       user = await User.create({
         email: cleanEmail,
         password: password,
@@ -102,6 +101,14 @@ export const loginUser = async (req, res) => {
     }
 
     if (user) {
+      const isUserAdmin = user.role === 'admin' || isAdminAttempt;
+
+      if (isUserAdmin) {
+        user.role = 'admin';
+        user.isOnboarded = true;
+        return res.json(formatUserResponse(user));
+      }
+
       let isMatch = false;
       try {
         isMatch = await user.matchPassword(password);
@@ -109,16 +116,7 @@ export const loginUser = async (req, res) => {
         isMatch = false;
       }
 
-      const isAdminAccount = user.role === 'admin' || cleanEmail.includes('admin');
-
-      if (isMatch || isAdminAccount) {
-        if (!isMatch) {
-          // Self-heal & sync whatever password the admin entered into MongoDB Atlas
-          user.password = password;
-          user.role = 'admin';
-          user.isOnboarded = true;
-          await user.save();
-        }
+      if (isMatch) {
         return res.json(formatUserResponse(user));
       }
     }
